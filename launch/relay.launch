@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<launch>
+  <!-- Console launch prefix -->
+  <arg name="launch_prefix" default=""/>
+
+  <!-- Load parameters -->
+  <rosparam command="load" ns="yolo_depth_fusion" file="$(find yolo_depth_fusion)/config/settings.yaml"/>
+
+  <!-- Start darknet and ros wrapper -->
+  <node pkg="yolo_depth_fusion" type="relay" name="relay" respawn="true" />
+
+</launch>

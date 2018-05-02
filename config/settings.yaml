@@ -1,0 +1,18 @@
+subscribers:
+    bounding_boxes:
+        topic: /darknet_ros/bounding_boxes
+        queue_size: 1
+
+    depth_map:
+        topic: /zed/depth/depth_registered
+        queue_size: 1
+
+publishers:
+    object_data:
+        topic: /yolo_depth_fusion/objects
+        queue_size: 1
+        latch: false
+
+settings:
+    depth_filter: 2.0
+    threshold: 0.8
