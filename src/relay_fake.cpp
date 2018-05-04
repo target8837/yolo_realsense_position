@@ -13,7 +13,7 @@
 #include <yolo_depth_fusion/yoloObject.h>
 #include <yolo_depth_fusion/yoloObjects.h>
 
-#include <yolo_depth_fusion/ms_coco.hpp>
+
 
 /***************************************************************
  * Defines
@@ -22,6 +22,20 @@
 #define WIDTH  672
 #define INITIAL_MAX 20
 #define CHANGE 4
+
+
+
+
+
+
+
+
+std::vector<std::string> classes = {std::string("person"), std::string("bicycle"), std::string("car"), std::string("motorbike"), std::string("aeroplane"), std::string("bus"), std::string("train"), std::string("truck"), std::string("boat"), std::string("traffic light"), std::string("fire hydrant"), std::string("stop sign"), std::string("parking meter"), std::string("bench"), std::string("bird"), std::string("cat"), std::string("dog"), std::string("horse"), std::string("sheep"), std::string("cow"), std::string("elephant"), std::string("bear"), std::string("zebra"), std::string("giraffe"), std::string("backpack"), std::string("umbrella"), std::string("handbag"), std::string("tie"), std::string("suitcase"), std::string("frisbee"), std::string("skis"), std::string("snowboard"), std::string("sports ball"), std::string("kite"), std::string("baseball bat"), std::string("baseball glove"), std::string("skateboard"), std::string("surfboard"), std::string("tennis racket"), std::string("bottle"), std::string("wine glass"), std::string("cup"), std::string("fork"), std::string("knife"), std::string("spoon"), std::string("bowl"), std::string("banana"), std::string("apple"), std::string("sandwich"), std::string("orange"), std::string("broccoli"), std::string("carrot"), std::string("hot dog"), std::string("pizza"), std::string("donut"), std::string("cake"), std::string("chair"), std::string("sofa"), std::string("pottedplant"), std::string("bed"), std::string("diningtable"), std::string("toilet"), std::string("tvmonitor"), std::string("laptop"), std::string("mouse"), std::string("remote"), std::string("keyboard"), std::string("cell phone"), std::string("microwave"), std::string("oven"), std::string("toaster"), std::string("sink"), std::string("refrigerator"), std::string("book"), std::string("clock"), std::string("vase"), std::string("scissors"), std::string("teddy bear"), std::string("hair drier"), std::string("toothbrush")};
+
+
+
+
+
 
 
 
