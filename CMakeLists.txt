@@ -12,14 +12,10 @@ find_package(catkin REQUIRED
     std_msgs
     message_generation
     roscpp
-
-
-
 )
 
 include_directories(
     ${catkin_INCLUDE_DIRS}
-
     )
 
 add_message_files(
@@ -36,6 +32,8 @@ generate_messages(
     std_msgs
 )
 
+install(DIRECTORY include/${PROJECT_NAME}/ms_coco.hpp)
+
 catkin_package(
   CATKIN_DEPENDS
     geometry_msgs
@@ -43,9 +41,6 @@ catkin_package(
     message_runtime
     std_msgs
     roscpp
-
-
-
   DEPENDS
     Boost
 )
