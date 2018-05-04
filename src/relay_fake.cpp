@@ -41,9 +41,6 @@ std::vector<std::string> classes = {std::string("person"), std::string("bicycle"
 
 
 
-void republishYolo(const darknet_ros_msgs::BoundingBoxes::ConstPtr& msg);
-void depthMapCallback(const sensor_msgs::ImageConstPtr& msg);
-
 int main(int argc, char* argv[]) {
     ros::init(argc, argv, "relay");
     ros::NodeHandle com;
