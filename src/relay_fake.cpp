@@ -13,7 +13,7 @@
 #include <yolo_depth_fusion/yoloObject.h>
 #include <yolo_depth_fusion/yoloObjects.h>
 
-#include "ms_coco.hpp"
+#include <yolo_depth_fusion/ms_coco.hpp>
 
 /***************************************************************
  * Defines
