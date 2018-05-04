@@ -99,24 +99,24 @@ void republishYolo(const darknet_ros_msgs::BoundingBoxes::ConstPtr& msg){
     depthMapAccess.unlock();
     
     for (int i = 0; i < (msg->bounding_boxes).size(); i++) {
+        yolo_depth_fusion::yoloObject current;
+        long xmin = (msg->bounding_boxes)[i].xmin;
+        long ymin = (msg->bounding_boxes)[i].ymin;
+        long xmax = (msg->bounding_boxes)[i].xmax;
+        long ymax = (msg->bounding_boxes)[i].ymax;
+        current.width = xmax - xmin;
+        current.height = ymax - ymin;
+        current.x = xmin + current.width / 2;
+        current.y = ymin + current.height / 2;
 
         cv::Scalar intensity = localMap->image.at<float>(current.y, current.x);
         float dist = intensity.val[0];
         double prob = (msg->bounding_boxes)[i].probability;
         if (prob > maxThreshold || dist - filterConst / prob > 0.0) {
-            yolo_depth_fusion::yoloObject current;
         
             current.classification = (msg->bounding_boxes)[i].Class;
             current.probability = prob;
             current.distance = dist;
-            long xmin = (msg->bounding_boxes)[i].xmin;
-            long ymin = (msg->bounding_boxes)[i].ymin;
-            long xmax = (msg->bounding_boxes)[i].xmax;
-            long ymax = (msg->bounding_boxes)[i].ymax;
-            current.width = xmax - xmin;
-            current.height = ymax - ymin;
-            current.x = xmin + current.width / 2;
-            current.y = ymin + current.height / 2;
             objects.list.push_back(current);
         }
     }
