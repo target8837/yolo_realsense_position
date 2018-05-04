@@ -41,8 +41,6 @@ catkin_package(
     message_runtime
     std_msgs
     roscpp
-  DEPENDS
-    Boost
 )
 
 add_executable(relay_fake src/relay_fake.cpp)

@@ -6,8 +6,8 @@
   <maintainer email="mon15008@student.mdh.se">Magnus Östgren</maintainer>
   <license>fuck</license>
   <buildtool_depend>catkin</buildtool_depend>
-  <build_depend>boost</build_depend>
-  <run_depend>boost</run_depend>
+
+
 
 
   <build_depend>geometry_msgs</build_depend>
