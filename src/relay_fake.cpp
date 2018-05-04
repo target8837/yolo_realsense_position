@@ -111,7 +111,7 @@ int main(int argc, char* argv[]) {
             else if (objects.list[i].distance > 20.0) objects.list[i].distance = std::numeric_limits<float>::infinity();
         }
 
-        if (objects.list.size() > 0)
+        //if (objects.list.size() > 0)
             pub.publish(objects);
     }
 }
