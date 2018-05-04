@@ -18,8 +18,8 @@
 /***************************************************************
  * Defines
  ***************************************************************/
-#define HEIGHT 480
-#define WIDTH  640
+#define HEIGHT 376
+#define WIDTH  672
 #define INITIAL_MAX 20
 #define CHANGE 4
 
