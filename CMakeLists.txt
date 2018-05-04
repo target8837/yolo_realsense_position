@@ -32,7 +32,7 @@ generate_messages(
     std_msgs
 )
 
-install(DIRECTORY include/${PROJECT_NAME}/ms_coco.hpp)
+install(DIRECTORY include/${PROJECT_NAME}/)
 
 catkin_package(
   CATKIN_DEPENDS
