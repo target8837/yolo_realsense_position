@@ -30,8 +30,8 @@ ros::Publisher* pub;
 cv_bridge::CvImagePtr depthMap;
 std::mutex depthMapAccess;
 
-float filterConst;
-float maxThreshold;
+double filterConst;
+double maxThreshold;
 
 /***************************************************************
  * Functions
