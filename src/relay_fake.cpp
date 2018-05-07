@@ -21,7 +21,7 @@
 #define HEIGHT 376
 #define WIDTH  672
 #define INITIAL_MAX 20
-#define CHANGE 4
+#define CHANGE 3
 
 
 
@@ -56,7 +56,7 @@ int main(int argc, char* argv[]) {
     std::srand (time(NULL));
     ros::Rate loop_rate(5);
     
-    int newNumber = std::rand() % INITIAL_MAX;
+    int newNumber = 20;
     std::vector<yolo_depth_fusion::yoloObject> last;
     while (ros::ok()) {
         yolo_depth_fusion::yoloObjects objects;
@@ -64,8 +64,8 @@ int main(int argc, char* argv[]) {
         objects.header.frame_id = "detection";
         
         int lastNumber = last.size();
-        newNumber += std::rand() % (2*CHANGE) - CHANGE;
-        std::random_shuffle(last.begin(), last.end());
+        //newNumber += std::rand() % (2*CHANGE) - CHANGE;
+        //std::random_shuffle(last.begin(), last.end());
         
         for (int i = 0; i < newNumber; i++) {
             
@@ -97,8 +97,13 @@ int main(int argc, char* argv[]) {
             else if (objects.list[i].y < 1) objects.list[i].y = 1;
 
             objects.list[i].width += (rand() % (2*CHANGE)) - CHANGE;
+            if (objects.list[i].width > 0.75 * WIDTH){ objects.list[i].width = 0.66 * WIDTH; }
+            else if (objects.list[i].width < 1) objects.list[i].width = 10;
+            
             objects.list[i].height += (rand() % (2*CHANGE)) - CHANGE;
-
+            if (objects.list[i].height > HEIGHT){ objects.list[i].height = 0.8 * HEIGHT; }
+            else if (objects.list[i].height < 10) objects.list[i].height = 15;
+            
             objects.list[i].distance += static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(1.0))) - 0.5;
             if (objects.list[i].distance < 0.0){ objects.list[i].distance = 0.0; }
             else if (objects.list[i].distance > 25.0) objects.list[i].distance = 25.0;
@@ -111,8 +116,11 @@ int main(int argc, char* argv[]) {
             else if (objects.list[i].distance > 20.0) objects.list[i].distance = std::numeric_limits<float>::infinity();
         }
 
-        //if (objects.list.size() > 0)
+        if (objects.list.size() > 0)
             pub.publish(objects);
+    
+        ros::spinOnce();
+        loop_rate.sleep();
     }
 }
 
