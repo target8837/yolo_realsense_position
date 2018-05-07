@@ -53,7 +53,3 @@ catkin_package(
 add_executable(relay src/relay.cpp)
 target_link_libraries(relay ${catkin_LIBRARIES} ${OpenCV_LIBS} ${OpenCV_LIBRARIES})
 add_dependencies(relay yolo_depth_fusion_generate_messages_cpp)
-
-add_executable(relay_fake src/relay_fake.cpp)
-target_link_libraries(relay_fake ${catkin_LIBRARIES})
-add_dependencies(relay_fake yolo_depth_fusion_generate_messages_cpp)

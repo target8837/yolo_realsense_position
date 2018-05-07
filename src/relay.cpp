@@ -120,7 +120,7 @@ void republishYolo(const darknet_ros_msgs::BoundingBoxes::ConstPtr& msg){
             objects.list.push_back(current);
         }
     }
-    if (objects.list.size() > 0)
+    //if (objects.list.size() > 0)
         pub->publish(objects);
 }
 
