@@ -112,8 +112,8 @@ void republishYolo(const darknet_ros_msgs::BoundingBoxes::ConstPtr& msg){
         cv::Scalar intensity = localMap->image.at<float>(current.y, current.x);
         float dist = intensity.val[0];
         double prob = (msg->bounding_boxes)[i].probability;
-        if (prob > maxThreshold || dist - filterConst / prob > 0.0) {
-        
+        //if (prob > maxThreshold || dist - filterConst / prob > 0.0) {
+        {
             current.classification = (msg->bounding_boxes)[i].Class;
             current.probability = prob;
             current.distance = dist;

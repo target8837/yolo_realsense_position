@@ -14,5 +14,5 @@ publishers:
         latch: false
 
 settings:
-    depth_filter: 2.0
-    threshold: 0.8
+    depth_filter: 1.5
+    threshold: 0.5
