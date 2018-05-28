@@ -94,9 +94,7 @@ void republishYolo(const darknet_ros_msgs::BoundingBoxes::ConstPtr& msg){
     objects.header = msg->header;
     objects.image_header = msg->image_header;
     
-    depthMapAccess.lock();
-    cv_bridge::CvImagePtr localMap = depthMap;
-    depthMapAccess.unlock();
+    ROS_INFO("Before data\n"); 
     
     for (int i = 0; i < (msg->bounding_boxes).size(); i++) {
         yolo_depth_fusion::yoloObject current;
@@ -109,7 +107,11 @@ void republishYolo(const darknet_ros_msgs::BoundingBoxes::ConstPtr& msg){
         current.x = xmin + current.width / 2;
         current.y = ymin + current.height / 2;
 
-        cv::Scalar intensity = localMap->image.at<float>(current.y, current.x);
+        depthMapAccess.lock();
+
+        cv::Scalar intensity = depthMap->image.at<float>(current.y, current.x);
+        depthMapAccess.unlock();
+
         float dist = intensity.val[0];
         double prob = (msg->bounding_boxes)[i].probability;
         //if (prob > maxThreshold || dist - filterConst / prob > 0.0) {
@@ -125,13 +127,14 @@ void republishYolo(const darknet_ros_msgs::BoundingBoxes::ConstPtr& msg){
 }
 
 void depthMapCallback(const sensor_msgs::ImageConstPtr& msg){
-    depthMapAccess.lock();
     try {
+        depthMapAccess.lock();
         depthMap = cv_bridge::toCvCopy(msg, sensor_msgs::image_encodings::TYPE_32FC1);
+
+        depthMapAccess.unlock();
     }catch(cv_bridge::Exception& err){
         ROS_ERROR("cv_bridge exception: %s", err.what());
     }
-    depthMapAccess.unlock();
 }
 
 
