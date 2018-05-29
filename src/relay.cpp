@@ -3,7 +3,7 @@
  ***************************************************************/
 #include <vector>
 #include <string>
-
+#include <unistd.h>
 
 #include "ros/ros.h"
 #include <image_transport/image_transport.h>
@@ -20,6 +20,9 @@
 #include <darknet_ros_msgs/BoundingBox.h>
 #include <yolo_depth_fusion/yoloObject.h>
 #include <yolo_depth_fusion/yoloObjects.h>
+
+
+#define SECOND 1000000
 
 
 /***************************************************************
@@ -124,6 +127,7 @@ void republishYolo(const darknet_ros_msgs::BoundingBoxes::ConstPtr& msg){
     }
     //if (objects.list.size() > 0)
         pub->publish(objects);
+        usleep(5 * SECOND);
 }
 
 void depthMapCallback(const sensor_msgs::ImageConstPtr& msg){

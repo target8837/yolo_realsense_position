@@ -5,7 +5,7 @@
   <arg name="launch_prefix" default=""/>
 
   <!-- Load parameters -->
-  <rosparam command="load" ns="yolo_depth_fusion" file="$HOME/catkin_ws/src/yolo_depth_fusion/config/settings.yaml"/>
+  <rosparam command="load" ns="yolo_depth_fusion" file="/home/nvidia/catkin_ws/src/yolo_depth_fusion/config/settings.yaml"/>
 
   <!-- Start darknet and ros wrapper -->
   <node pkg="yolo_depth_fusion" type="relay" name="relay" respawn="true" />
