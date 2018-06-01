@@ -1,3 +1,16 @@
+/*
+ * yolo_depth_fusion/src/relay.cpp
+ *
+ * Ros node to fuse and republish data from darknet_ros and zed-ros-wrapper.
+ * Developed during the course CDT406 at MDH.
+ *
+ * Authors:
+ * Magnus Östgren    <ninjalostinsnow@gmail.com>
+ *
+ */
+
+
+
 /***************************************************************
  * Includes
  ***************************************************************/
@@ -38,32 +51,27 @@ double maxThreshold;
 
 /***************************************************************
  * Functions
- *
- * main
- * * Inits ros and sets up subscribers and publishers.
- *
- * republishYolo
- * * Subscribes to bounding box data from darknet_ros,
- * * reformats that and combibines it with distance data
- * * from a depth map. This fusion of data is then published
- * * in a new topic.
- *
- * depthMapCallback
- * * Subscribes to an image topic of depth data. Converts the
- * * depth map to opencv mat of encoding 32FC1 and saves it
- * * for use in republishYolo.
  ***************************************************************/
 
 void republishYolo(const darknet_ros_msgs::BoundingBoxes::ConstPtr& msg);
 void depthMapCallback(const sensor_msgs::ImageConstPtr& msg);
 
+
+/***************************************************************
+ * main
+ * * Inits ros and sets up subscribers and publishers.
+ ***************************************************************/
+
 int main(int argc, char* argv[]) {
     ros::init(argc, argv, "relay");
     ros::NodeHandle com;
     
-    com.param("settings/depth_filter", filterConst, 2.0);
-    com.param("settings/threshold", maxThreshold, 0.8);
+    //Constants for depth filtering, currently not in use
+    //com.param("settings/depth_filter", filterConst, 2.0);
+    //com.param("settings/threshold", maxThreshold, 0.8);
 
+
+    //Reading parameters and setting up publisher
     std::string publisherTopicName;
     int publisherQueueSize;
     bool publisherLatch;
@@ -73,13 +81,14 @@ int main(int argc, char* argv[]) {
     ros::Publisher publisher = com.advertise<yolo_depth_fusion::yoloObjects>(publisherTopicName, publisherQueueSize, publisherLatch);
     pub = &publisher;
     
+    //Reading parameters and setting up subscriber for bounding boxes from darknet_ros
     int yoloQueueSize;
     std::string yoloTopicName;
     com.param("subscribers/bounding_boxes/topic", yoloTopicName, std::string("/darknet_ros/bounding_boxes"));
     com.param("subscribers/bounding_boxes/queue_size", yoloQueueSize, 1);
     ros::Subscriber yoloSub = com.subscribe(yoloTopicName, yoloQueueSize, republishYolo);
 
-
+    //Reading parameters and setting up subsctriber for depth map
     int depthQueueSize;
     std::string depthTopicName;
     com.param("subscribers/depth_map/topic", depthTopicName, std::string("/zed/depth/depth_registered"));
@@ -92,12 +101,19 @@ int main(int argc, char* argv[]) {
 }
 
 
+
+/***************************************************************
+ * republishYolo
+ * * Subscribes to bounding box data from darknet_ros,
+ * * reformats that and combibines it with distance data
+ * * from a depth map. This fusion of data is then published
+ * * in a new topic.
+ ***************************************************************/
+
 void republishYolo(const darknet_ros_msgs::BoundingBoxes::ConstPtr& msg){
     yolo_depth_fusion::yoloObjects objects;
     objects.header = msg->header;
     objects.image_header = msg->image_header;
-    
-    ROS_INFO("Before data\n"); 
     
     for (int i = 0; i < (msg->bounding_boxes).size(); i++) {
         yolo_depth_fusion::yoloObject current;
@@ -130,11 +146,19 @@ void republishYolo(const darknet_ros_msgs::BoundingBoxes::ConstPtr& msg){
         usleep(5 * SECOND);
 }
 
+
+
+/***************************************************************
+ * depthMapCallback
+ * * Subscribes to an image topic of depth data. Converts the
+ * * depth map to opencv mat of encoding 32FC1 and saves it
+ * * for use in republishYolo.
+ ***************************************************************/
+
 void depthMapCallback(const sensor_msgs::ImageConstPtr& msg){
     try {
         depthMapAccess.lock();
         depthMap = cv_bridge::toCvCopy(msg, sensor_msgs::image_encodings::TYPE_32FC1);
-
         depthMapAccess.unlock();
     }catch(cv_bridge::Exception& err){
         ROS_ERROR("cv_bridge exception: %s", err.what());
