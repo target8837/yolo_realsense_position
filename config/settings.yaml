@@ -4,7 +4,7 @@ subscribers:
         queue_size: 1
 
     depth_map:
-        topic: /zed/depth/depth_registered
+        topic: /camera/depth/image_rect_raw
         queue_size: 1
 
 publishers:
@@ -15,4 +15,4 @@ publishers:
 
 settings:
     depth_filter: 1.5
-    threshold: 0.5
+    threshold: 0.3

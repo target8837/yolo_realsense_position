@@ -35,8 +35,6 @@
 #include <yolo_depth_fusion/yoloObjects.h>
 
 
-#define SECOND 1000000
-
 
 /***************************************************************
  * Global variables
@@ -45,6 +43,7 @@ ros::Publisher* pub;
 
 cv_bridge::CvImagePtr depthMap;
 std::mutex depthMapAccess;
+cv::Mat mDepthImage;
 
 double filterConst;
 double maxThreshold;
@@ -91,7 +90,7 @@ int main(int argc, char* argv[]) {
     //Reading parameters and setting up subsctriber for depth map
     int depthQueueSize;
     std::string depthTopicName;
-    com.param("subscribers/depth_map/topic", depthTopicName, std::string("/zed/depth/depth_registered"));
+    com.param("subscribers/depth_map/topic", depthTopicName, std::string("/camera/depth/image_rect_raw"));
     com.param("subscribers/depth_map/queue_size", depthQueueSize, 1);
     image_transport::ImageTransport imageLayer(com);
     image_transport::Subscriber depthSub = imageLayer.subscribe(depthTopicName, depthQueueSize, depthMapCallback);
@@ -128,22 +127,24 @@ void republishYolo(const darknet_ros_msgs::BoundingBoxes::ConstPtr& msg){
 
         depthMapAccess.lock();
 
-        cv::Scalar intensity = depthMap->image.at<float>(current.y, current.x);
+        auto intensity = mDepthImage.at<float>(static_cast<int>(current.y), static_cast<int>(current.x));
         depthMapAccess.unlock();
 
-        float dist = intensity.val[0];
+        float dist = intensity;
         double prob = (msg->bounding_boxes)[i].probability;
         //if (prob > maxThreshold || dist - filterConst / prob > 0.0) {
         {
             current.classification = (msg->bounding_boxes)[i].Class;
             current.probability = prob;
             current.distance = dist;
+            current.px = dist * (current.x - 320.70361328125) / 617.6864013671875;
+            current.py = dist * (current.y - 244.4276123046875) / 618.0162353515625;
+            current.pz = dist;
             objects.list.push_back(current);
         }
     }
     //if (objects.list.size() > 0)
         pub->publish(objects);
-        usleep(5 * SECOND);
 }
 
 
@@ -157,8 +158,12 @@ void republishYolo(const darknet_ros_msgs::BoundingBoxes::ConstPtr& msg){
 
 void depthMapCallback(const sensor_msgs::ImageConstPtr& msg){
     try {
+        auto depthMap = cv_bridge::toCvCopy(msg, sensor_msgs::image_encodings::TYPE_32FC1);
         depthMapAccess.lock();
-        depthMap = cv_bridge::toCvCopy(msg, sensor_msgs::image_encodings::TYPE_32FC1);
+        if (msg->encoding == sensor_msgs::image_encodings::TYPE_16UC1)
+            depthMap->image.convertTo(mDepthImage, -1, 0.001f);
+        else
+            mDepthImage = depthMap->image;
         depthMapAccess.unlock();
     }catch(cv_bridge::Exception& err){
         ROS_ERROR("cv_bridge exception: %s", err.what());
