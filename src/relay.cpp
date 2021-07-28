@@ -1,7 +1,7 @@
 /*
  * yolo_depth_fusion/src/relay.cpp
  *
- * Ros node to fuse and republish data from darknet_ros and zed-ros-wrapper.
+ * Ros node to fuse and republish data from darknet_ros and realsense_ros.
  * Developed during the course CDT406 at MDH.
  *
  * Authors:
@@ -33,6 +33,9 @@
 #include <darknet_ros_msgs/BoundingBox.h>
 #include <yolo_depth_fusion/yoloObject.h>
 #include <yolo_depth_fusion/yoloObjects.h>
+#include <visualization_msgs/Marker.h>
+#include <visualization_msgs/MarkerArray.h>
+#include "geometry_msgs/PoseStamped.h"
 
 
 
@@ -40,10 +43,16 @@
  * Global variables
  ***************************************************************/
 ros::Publisher* pub;
+ros::Publisher* pub_marker;
+ros::Publisher* pub_all;
 
 cv_bridge::CvImagePtr depthMap;
 std::mutex depthMapAccess;
 cv::Mat mDepthImage;
+
+float global_x = 0;
+float global_y = 0;
+float global_z = 0;
 
 double filterConst;
 double maxThreshold;
@@ -53,6 +62,7 @@ double maxThreshold;
  ***************************************************************/
 
 void republishYolo(const darknet_ros_msgs::BoundingBoxes::ConstPtr& msg);
+void poseRecord(const geometry_msgs::PoseStamped::ConstPtr& msg);
 void depthMapCallback(const sensor_msgs::ImageConstPtr& msg);
 
 
@@ -79,14 +89,18 @@ int main(int argc, char* argv[]) {
     com.param("publishers/object_data/latch", publisherLatch, false);
     ros::Publisher publisher = com.advertise<yolo_depth_fusion::yoloObjects>(publisherTopicName, publisherQueueSize, publisherLatch);
     pub = &publisher;
-    
+
+    ros::Publisher marker_pub = com.advertise<visualization_msgs::MarkerArray>("/fire", 10, publisherLatch);
+    pub_marker = &marker_pub;
+    ros::Publisher all_pub = com.advertise<visualization_msgs::MarkerArray>("/all", 100, publisherLatch);
+    pub_all = &all_pub;
     //Reading parameters and setting up subscriber for bounding boxes from darknet_ros
     int yoloQueueSize;
     std::string yoloTopicName;
     com.param("subscribers/bounding_boxes/topic", yoloTopicName, std::string("/darknet_ros/bounding_boxes"));
     com.param("subscribers/bounding_boxes/queue_size", yoloQueueSize, 1);
     ros::Subscriber yoloSub = com.subscribe(yoloTopicName, yoloQueueSize, republishYolo);
-
+    ros::Subscriber poseSub = com.subscribe("/mavros/local_position/pose", 10, poseRecord);
     //Reading parameters and setting up subsctriber for depth map
     int depthQueueSize;
     std::string depthTopicName;
@@ -108,6 +122,11 @@ int main(int argc, char* argv[]) {
  * * from a depth map. This fusion of data is then published
  * * in a new topic.
  ***************************************************************/
+void poseRecord(const geometry_msgs::PoseStamped::ConstPtr& msg){
+    global_x = msg->pose.position.x;
+    global_y = msg->pose.position.y;
+    global_z = msg->pose.position.z;
+}
 
 void republishYolo(const darknet_ros_msgs::BoundingBoxes::ConstPtr& msg){
     yolo_depth_fusion::yoloObjects objects;
@@ -141,6 +160,35 @@ void republishYolo(const darknet_ros_msgs::BoundingBoxes::ConstPtr& msg){
             current.py = dist * (current.y - 244.4276123046875) / 618.0162353515625;
             current.pz = dist;
             objects.list.push_back(current);
+            //-------------------------------------
+            visualization_msgs::Marker marker;
+            visualization_msgs::MarkerArray mark;
+            marker.header.frame_id = "map";
+            marker.header.stamp = ros::Time::now();
+            marker.ns = "my_namespace";
+            //marker.type = marker.MESH_RESOURCE
+            marker.type = visualization_msgs::Marker::SPHERE;
+            marker.id = 0;
+            marker.action = visualization_msgs::Marker::ADD;
+            marker.pose.position.x = current.px + global_x;
+            marker.pose.position.y = current.py + global_y;
+            marker.pose.position.z = current.pz + global_z;
+            marker.pose.orientation.x = 1.0;
+            marker.pose.orientation.y = 0.0;
+            marker.pose.orientation.z = 0.0;
+            marker.pose.orientation.w = 1.0;
+            marker.scale.x = 1.0;
+            marker.scale.y = 1.0;
+            marker.scale.z = 1.0;
+            marker.text = "fire";
+            marker.color.a = 0.9;
+            marker.color.r = 1.0;
+            marker.color.g = 0.0;
+            marker.color.b = 0.0;
+            mark.markers.push_back(marker);
+            pub_marker->publish(mark);
+            pub_all->publish(mark);
+            //-------------------------------------
         }
     }
     //if (objects.list.size() > 0)
