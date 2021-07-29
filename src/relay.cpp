@@ -168,10 +168,10 @@ void republishYolo(const darknet_ros_msgs::BoundingBoxes::ConstPtr& msg){
             marker.ns = "my_namespace";
             //marker.type = marker.MESH_RESOURCE
             marker.type = visualization_msgs::Marker::SPHERE;
-            marker.id = 0;
+            marker.id = 10000;
             marker.action = visualization_msgs::Marker::ADD;
-            marker.pose.position.x = current.px + global_x;
-            marker.pose.position.y = current.py + global_y;
+            marker.pose.position.x = current.px + global_x+3;
+            marker.pose.position.y = current.py + global_y+1;
             marker.pose.position.z = current.pz + global_z;
             marker.pose.orientation.x = 1.0;
             marker.pose.orientation.y = 0.0;
