@@ -4,8 +4,8 @@ subscribers:
         queue_size: 1
 
     depth_map:
-        topic: /camera/depth/image_rect_raw
-        queue_size: 1
+        topic: /d435/depth/image_rect_raw
+        queue_size: 10
 
 publishers:
     object_data:

@@ -152,6 +152,7 @@ void republishYolo(const darknet_ros_msgs::BoundingBoxes::ConstPtr& msg){
         float dist = intensity;
         double prob = (msg->bounding_boxes)[i].probability;
         //if (prob > maxThreshold || dist - filterConst / prob > 0.0) {
+        if (dist > 0.7 && dist < 1.5)
         {
             current.classification = (msg->bounding_boxes)[i].Class;
             current.probability = prob;
@@ -167,19 +168,20 @@ void republishYolo(const darknet_ros_msgs::BoundingBoxes::ConstPtr& msg){
             marker.header.stamp = ros::Time::now();
             marker.ns = "my_namespace";
             //marker.type = marker.MESH_RESOURCE
-            marker.type = visualization_msgs::Marker::SPHERE;
+            marker.type = visualization_msgs::Marker::MESH_RESOURCE;
+            marker.mesh_resource = "file:///home/kwan/Downloads/fired.dae";
             marker.id = 10000;
             marker.action = visualization_msgs::Marker::ADD;
-            marker.pose.position.x = current.px + global_x+3;
-            marker.pose.position.y = current.py + global_y+1;
-            marker.pose.position.z = current.pz + global_z;
-            marker.pose.orientation.x = 1.0;
-            marker.pose.orientation.y = 0.0;
-            marker.pose.orientation.z = 0.0;
-            marker.pose.orientation.w = 1.0;
-            marker.scale.x = 1.0;
-            marker.scale.y = 1.0;
-            marker.scale.z = 1.0;
+            marker.pose.position.x = global_x + current.pz;
+            marker.pose.position.y = global_y - current.px;
+            marker.pose.position.z = 5;
+            marker.pose.orientation.x = -0.53;
+            marker.pose.orientation.y = 0.46;
+            marker.pose.orientation.z = -0.46;
+            marker.pose.orientation.w = 0.53;
+            marker.scale.x = 0.25;
+            marker.scale.y = 0.25;
+            marker.scale.z = 0.25;
             marker.text = "fire";
             marker.color.a = 0.9;
             marker.color.r = 1.0;
@@ -217,13 +219,3 @@ void depthMapCallback(const sensor_msgs::ImageConstPtr& msg){
         ROS_ERROR("cv_bridge exception: %s", err.what());
     }
 }
-
-
-
-
-
-
-
-
-
-
