@@ -50,10 +50,6 @@ cv_bridge::CvImagePtr depthMap;
 std::mutex depthMapAccess;
 cv::Mat mDepthImage;
 
-float global_x = 0;
-float global_y = 0;
-float global_z = 0;
-
 double filterConst;
 double maxThreshold;
 
@@ -62,7 +58,6 @@ double maxThreshold;
  ***************************************************************/
 
 void republishYolo(const darknet_ros_msgs::BoundingBoxes::ConstPtr& msg);
-void poseRecord(const geometry_msgs::PoseStamped::ConstPtr& msg);
 void depthMapCallback(const sensor_msgs::ImageConstPtr& msg);
 
 
@@ -72,7 +67,7 @@ void depthMapCallback(const sensor_msgs::ImageConstPtr& msg);
  ***************************************************************/
 
 int main(int argc, char* argv[]) {
-    ros::init(argc, argv, "relay");
+    ros::init(argc, argv, "sim");
     ros::NodeHandle com;
     
     //Constants for depth filtering, currently not in use
@@ -100,11 +95,10 @@ int main(int argc, char* argv[]) {
     com.param("subscribers/bounding_boxes/topic", yoloTopicName, std::string("/darknet_ros/bounding_boxes"));
     com.param("subscribers/bounding_boxes/queue_size", yoloQueueSize, 1);
     ros::Subscriber yoloSub = com.subscribe(yoloTopicName, yoloQueueSize, republishYolo);
-    ros::Subscriber poseSub = com.subscribe("/mavros/local_position/pose", 10, poseRecord);
     //Reading parameters and setting up subsctriber for depth map
     int depthQueueSize;
     std::string depthTopicName;
-    com.param("subscribers/depth_map/topic", depthTopicName, std::string("/camera/depth/image_rect_raw"));
+    com.param("subscribers/depth_map/topic", depthTopicName, std::string("/camera/depth/image_raw"));
     com.param("subscribers/depth_map/queue_size", depthQueueSize, 1);
     image_transport::ImageTransport imageLayer(com);
     image_transport::Subscriber depthSub = imageLayer.subscribe(depthTopicName, depthQueueSize, depthMapCallback);
@@ -122,11 +116,6 @@ int main(int argc, char* argv[]) {
  * * from a depth map. This fusion of data is then published
  * * in a new topic.
  ***************************************************************/
-void poseRecord(const geometry_msgs::PoseStamped::ConstPtr& msg){
-    global_x = msg->pose.position.x;
-    global_y = msg->pose.position.y;
-    global_z = msg->pose.position.z;
-}
 
 void republishYolo(const darknet_ros_msgs::BoundingBoxes::ConstPtr& msg){
     yolo_depth_fusion::yoloObjects objects;
@@ -152,7 +141,7 @@ void republishYolo(const darknet_ros_msgs::BoundingBoxes::ConstPtr& msg){
         float dist = intensity;
         double prob = (msg->bounding_boxes)[i].probability;
         //if (prob > maxThreshold || dist - filterConst / prob > 0.0) {
-        if (dist > 0.7 && dist < 1.5)
+        printf("%f",dist);
         {
             current.classification = (msg->bounding_boxes)[i].Class;
             current.probability = prob;
@@ -172,16 +161,16 @@ void republishYolo(const darknet_ros_msgs::BoundingBoxes::ConstPtr& msg){
             marker.mesh_resource = "file:///home/kwan/Downloads/fired.dae";
             marker.id = 10000;
             marker.action = visualization_msgs::Marker::ADD;
-            marker.pose.position.x = global_x + current.pz;
-            marker.pose.position.y = global_y - current.px;
-            marker.pose.position.z = 5;
-            marker.pose.orientation.x = -0.53;
-            marker.pose.orientation.y = 0.46;
-            marker.pose.orientation.z = -0.46;
-            marker.pose.orientation.w = 0.53;
-            marker.scale.x = 0.25;
-            marker.scale.y = 0.25;
-            marker.scale.z = 0.25;
+            marker.pose.position.x = current.pz;
+            marker.pose.position.y = current.px;
+            marker.pose.position.z = current.py;
+            marker.pose.orientation.x = -0.41;
+            marker.pose.orientation.y = 0.58;
+            marker.pose.orientation.z = -0.58;
+            marker.pose.orientation.w = 0.41;
+            marker.scale.x = 0.3;
+            marker.scale.y = 0.3;
+            marker.scale.z = 0.3;
             marker.text = "fire";
             marker.color.a = 0.9;
             marker.color.r = 1.0;
